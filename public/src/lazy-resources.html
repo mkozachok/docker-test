@@ -1,0 +1,380 @@
+<html><head></head><body><div hidden="" by-polymer-bundler=""><dom-module id="paper-toast" assetpath="../bower_components/paper-toast/">
+  <template>
+    <style>:host{display:block;position:fixed;background-color:var(--paper-toast-background-color, #323232);color:var(--paper-toast-color, #f1f1f1);min-height:48px;min-width:288px;padding:16px 24px;box-sizing:border-box;box-shadow:0 2px 5px 0 rgba(0, 0, 0, 0.26);border-radius:2px;margin:12px;font-size:14px;cursor:default;-webkit-transition:-webkit-transform 0.3s, opacity 0.3s;transition:transform 0.3s, opacity 0.3s;opacity:0;-webkit-transform:translateY(100px);transform:translateY(100px);@apply --paper-font-common-base;}:host(.capsule){border-radius:24px;}:host(.fit-bottom){width:100%;min-width:0;border-radius:0;margin:0;}:host(.paper-toast-open){opacity:1;-webkit-transform:translateY(0px);transform:translateY(0px);}</style>
+
+    <span id="label">{{text}}</span>
+    <slot></slot>
+  </template>
+
+  <script>
+    (function() {
+    'use strict';
+
+    // Keeps track of the toast currently opened.
+    var currentToast = null;
+
+    Polymer({
+      is: 'paper-toast',
+
+      behaviors: [Polymer.IronOverlayBehavior],
+
+      properties: {
+        /**
+         * The element to fit `this` into.
+         * Overridden from `Polymer.IronFitBehavior`.
+         */
+        fitInto: {type: Object, value: window, observer: '_onFitIntoChanged'},
+
+        /**
+         * The orientation against which to align the dropdown content
+         * horizontally relative to `positionTarget`.
+         * Overridden from `Polymer.IronFitBehavior`.
+         */
+        horizontalAlign: {type: String, value: 'left'},
+
+        /**
+         * The orientation against which to align the dropdown content
+         * vertically relative to `positionTarget`.
+         * Overridden from `Polymer.IronFitBehavior`.
+         */
+        verticalAlign: {type: String, value: 'bottom'},
+
+        /**
+         * The duration in milliseconds to show the toast.
+         * Set to `0`, a negative number, or `Infinity`, to disable the
+         * toast auto-closing.
+         */
+        duration: {type: Number, value: 3000},
+
+        /**
+         * The text to display in the toast.
+         */
+        text: {type: String, value: ''},
+
+        /**
+         * Overridden from `IronOverlayBehavior`.
+         * Set to false to enable closing of the toast by clicking outside it.
+         */
+        noCancelOnOutsideClick: {type: Boolean, value: true},
+
+        /**
+         * Overridden from `IronOverlayBehavior`.
+         * Set to true to disable auto-focusing the toast or child nodes with
+         * the `autofocus` attribute` when the overlay is opened.
+         */
+        noAutoFocus: {type: Boolean, value: true}
+      },
+
+      listeners: {'transitionend': '__onTransitionEnd'},
+
+      /**
+       * Read-only. Deprecated. Use `opened` from `IronOverlayBehavior`.
+       * @property visible
+       * @deprecated
+       */
+      get visible() {
+        Polymer.Base._warn('`visible` is deprecated, use `opened` instead');
+        return this.opened;
+      },
+
+      /**
+       * Read-only. Can auto-close if duration is a positive finite number.
+       * @property _canAutoClose
+       */
+      get _canAutoClose() {
+        return this.duration > 0 && this.duration !== Infinity;
+      },
+
+      created: function() {
+        this._autoClose = null;
+        Polymer.IronA11yAnnouncer.requestAvailability();
+      },
+
+      /**
+       * Show the toast. Without arguments, this is the same as `open()` from
+       * `IronOverlayBehavior`.
+       * @param {(Object|string)=} properties Properties to be set before opening the toast.
+       * e.g. `toast.show('hello')` or `toast.show({text: 'hello', duration: 3000})`
+       */
+      show: function(properties) {
+        if (typeof properties == 'string') {
+          properties = {text: properties};
+        }
+        for (var property in properties) {
+          if (property.indexOf('_') === 0) {
+            Polymer.Base._warn(
+                'The property "' + property + '" is private and was not set.');
+          } else if (property in this) {
+            this[property] = properties[property];
+          } else {
+            Polymer.Base._warn('The property "' + property + '" is not valid.');
+          }
+        }
+        this.open();
+      },
+
+      /**
+       * Hide the toast. Same as `close()` from `IronOverlayBehavior`.
+       */
+      hide: function() {
+        this.close();
+      },
+
+      /**
+       * Called on transitions of the toast, indicating a finished animation
+       * @private
+       */
+      __onTransitionEnd: function(e) {
+        // there are different transitions that are happening when opening and
+        // closing the toast. The last one so far is for `opacity`.
+        // This marks the end of the transition, so we check for this to determine
+        // if this is the correct event.
+        if (e && e.target === this && e.propertyName === 'opacity') {
+          if (this.opened) {
+            this._finishRenderOpened();
+          } else {
+            this._finishRenderClosed();
+          }
+        }
+      },
+
+      /**
+       * Overridden from `IronOverlayBehavior`.
+       * Called when the value of `opened` changes.
+       */
+      _openedChanged: function() {
+        if (this._autoClose !== null) {
+          this.cancelAsync(this._autoClose);
+          this._autoClose = null;
+        }
+        if (this.opened) {
+          if (currentToast && currentToast !== this) {
+            currentToast.close();
+          }
+          currentToast = this;
+          this.fire('iron-announce', {text: this.text});
+          if (this._canAutoClose) {
+            this._autoClose = this.async(this.close, this.duration);
+          }
+        } else if (currentToast === this) {
+          currentToast = null;
+        }
+        Polymer.IronOverlayBehaviorImpl._openedChanged.apply(this, arguments);
+      },
+
+      /**
+       * Overridden from `IronOverlayBehavior`.
+       */
+      _renderOpened: function() {
+        this.classList.add('paper-toast-open');
+      },
+
+      /**
+       * Overridden from `IronOverlayBehavior`.
+       */
+      _renderClosed: function() {
+        this.classList.remove('paper-toast-open');
+      },
+
+      /**
+       * @private
+       */
+      _onFitIntoChanged: function(fitInto) {
+        this.positionTarget = fitInto;
+      }
+
+      /**
+       * Fired when `paper-toast` is opened.
+       *
+       * @event 'iron-announce'
+       * @param {{text: string}} detail Contains text that will be announced.
+       */
+    });
+    })();
+  </script>
+</dom-module>
+<dom-module id="toast-element" assetpath="elements/">
+  <template>
+    <style is="custom-style" include="shared-styles flex flex-alignment"></style>
+
+    <style>:host{display:block;}paper-toast{user-select:none;}paper-toast[fit-bottom]{width:100%;min-width:0;border-radius:0;margin:0;}.toast-action{margin-left:24px;color:var(--accent-color);text-transform:uppercase;font-weight:600;cursor:pointer;white-space:nowrap;user-select:none;}</style>
+
+    <paper-toast id="toast" duration="[[toast.duration]]" text="[[toast.message]]" opened="[[toast.visible]]" on-tap="_handleTap" fit-bottom$="[[viewport.isPhone]]" layout="" horizontal="" justified="" center="">
+
+      <span class="toast-action" hidden$="[[!toast.action]]" on-tap="_handleAction">
+        [[toast.action.title]]
+      </span>
+
+    </paper-toast>
+
+  </template>
+
+  <script>
+
+    class ToastElement extends ReduxMixin(Polymer.GestureEventListeners(Polymer.Element)) {
+      static get is() {
+        return 'toast-element';
+      }
+
+      static get properties() {
+        return {
+          toast: {
+            type: Object,
+            statePath: 'toast',
+          },
+          viewport: {
+            type: Object,
+            statePath: 'ui.viewport',
+          },
+        };
+      }
+
+      _handleTap() {
+        this.toast.action && this.toast.action.callback();
+        toastActions.hideToast();
+      }
+
+      _handleAction() {
+        if (this.toast.action) {
+          this.toast.action.callback();
+          toastActions.hideToast();
+        }
+      }
+    }
+
+    window.customElements.define(ToastElement.is, ToastElement);
+
+  </script>
+</dom-module>
+
+<dom-module id="dialog-styles" assetpath="elements/dialogs/">
+  <template>
+    <style>:host{margin:0;display:block;height:100%;width:100%;background:#fff;color:var(--primary-text-color);box-shadow:var(--box-shadow);}app-header{background-color:var(--additional-background-color);}app-toolbar{padding:0;height:auto;}.dialog-container{margin:0 auto;width:100%;max-width:584px;}.close-icon{margin:24px 24px 24px;cursor:pointer;}.header-content,
+      .content{padding:24px;}.content{min-height:100%;}.header-content{position:relative;}.name{line-height:1.2;}.tag{margin-top:8px;}.float-button{position:fixed;right:24px;bottom:24px;}.content{position:relative;font-size:15px;line-height:1.87;}.meta-info{line-height:1.6;}.description{margin:24px 0 32px;}.action{margin-right:16px;color:var(--primary-text-color);cursor:pointer;user-select:none;}.action iron-icon{margin-right:4px;--iron-icon-width:18px;--iron-icon-height:18px;}.additional-sections{margin-top:32px;}.section{margin-top:16px;display:block;color:var(--primary-text-color);}.section-photo{margin-right:16px;width:48px;height:48px;background-color:var(--secondary-background-color);border-radius:50%;overflow:hidden;transform:translateZ(0);}.section-primary-text{margin-bottom:4px;line-height:1.2;}.section-secondary-text{font-size:12px;line-height:1;}@media (min-width: 812px){:host{height:70%;width:720px;}.close-icon{margin:16px;position:absolute;top:-8px;right:-48px;--iron-icon-fill-color:#fff;}.header-content,
+        .content{padding:24px;}.header-content{min-height:160px;}.float-button{position:absolute;top:auto;right:0;bottom:0;transform:translate(50%, 50%);}}</style>
+  </template>
+</dom-module>
+<dom-module id="speaker-details" assetpath="elements/dialogs/">
+  <template>
+    <style is="custom-style" include="shared-styles dialog-styles flex flex-alignment positioning"></style>
+
+    <style>.photo{margin-right:16px;width:96px;height:96px;border-radius:50%;background-color:var(--contrast-additional-background-color);transform:translateZ(0);flex-shrink:0;}.badge:not(:last-of-type)::after{margin-left:-4px;content:',';}.action{color:var(--secondary-text-color);}</style>
+
+    <polymer-helmet title="[[speaker.name]] | LvivJS! Season 2018" description="[[speaker.bio]]" image="[[speaker.photoUrl]]" active="[[opened]]" label1="Position" data1="[[speaker.title]], [[speaker.company]]" label2="Country" data2="[[speaker.country]]"></polymer-helmet>
+
+    <app-header-layout has-scrolling-region="">
+      <app-header slot="header" class="header" fixed="[[viewport.isTabletPlus]]">
+        <iron-icon class="close-icon" icon="hoverboard:[[_getCloseBtnIcon(viewport.isLaptopPlus)]]" on-tap="_close"></iron-icon>
+
+        <app-toolbar>
+          <div class="dialog-container header-content" layout="" horizontal="" center="">
+            <plastic-image class="photo" srcset="[[speaker.photoUrl]]" sizing="cover" lazy-load="" preload="" fade=""></plastic-image>
+            <h2 class="name" flex="">[[speaker.name]]</h2>
+          </div>
+        </app-toolbar>
+      </app-header>
+
+      <div class="dialog-container content">
+        <h3 class="meta-info">[[speaker.country]]</h3>
+        <h3 class="meta-info">[[speaker.title]], [[speaker.company]]</h3>
+        <h3 class="meta-info" hidden$="[[isEmpty(speaker.badges)]]">
+          <template is="dom-repeat" items="[[speaker.badges]]" as="badge">
+            <a class="badge" href$="[[badge.link]]" target="_blank" rel="noopener noreferrer" title$="[[badge.description]]">
+              [[badge.description]]
+            </a>
+          </template>
+        </h3>
+
+        <marked-element class="description" markdown="[[speaker.bio]]">
+          <div slot="markdown-html"></div>
+        </marked-element>
+
+        <div class="actions" layout="" horizontal="">
+          <template is="dom-repeat" items="[[speaker.socials]]" as="social">
+            <a class="action" href$="[[social.link]]" target="_blank" rel="noopener noreferrer">
+              <iron-icon icon="hoverboard:[[social.icon]]"></iron-icon>
+            </a>
+          </template>
+        </div>
+
+        <div class="additional-sections" hidden$="[[!getSessionsBySpeaker(speaker.id).length]]">
+          <h3>Sessions</h3>
+
+          <template is="dom-repeat" items="[[getSessionsBySpeaker(speaker.id, sessions)]]" as="session">
+            <a href$="/schedule?sessionId=[[session.id]]" on-tap="_openSession" session-id$="[[session.id]]" class="section">
+              <div layout="" horizontal="" center="">
+                <div class="section-details" flex="">
+                  <div class="section-primary-text">[[session.title]]</div>
+                  <div class="section-secondary-text" hidden$="[[!session.dateReadable]]">[[session.dateReadable]],
+                    [[session.startTime]] - [[session.endTime]]
+                  </div>
+                  <div class="section-secondary-text" hidden$="[[!session.track.title]]">[[session.track.title]]</div>
+                  <div class="tags" hidden$="[[!session.tags.length]]">
+                    <template is="dom-repeat" items="[[session.tags]]" as="tag">
+                      <span class="tag" style$="color: [[getVariableColor(tag)]]">[[tag]]</span>
+                    </template>
+                  </div>
+                </div>
+              </div>
+            </a>
+          </template>
+        </div>
+
+      </div>
+    </app-header-layout>
+
+  </template>
+
+  <script>
+
+    // eslint-disable-next-line no-undef
+    class SpeakerDetails extends UtilsFunctions(
+      // eslint-disable-next-line no-undef
+      ReduxMixin(SessionsHoC(Polymer.mixinBehaviors([Polymer.IronOverlayBehavior], Polymer.Element)))
+    ) {
+      static get is() {
+        return 'speaker-details';
+      }
+
+      static get properties() {
+        return {
+          speaker: {
+            type: Object,
+          },
+          viewport: {
+            type: Object,
+            statePath: 'ui.viewport',
+          },
+          disabledSchedule: {
+            type: Boolean,
+            value: () => JSON.parse('false'),
+          },
+        };
+      }
+
+      constructor() {
+        super();
+        this.addEventListener('iron-overlay-canceled', this._close);
+      }
+
+      _close() {
+        dialogsActions.closeDialog(DIALOGS.SPEAKER);
+      }
+
+      _openSession(e) {
+        if (this.disabledSchedule) {
+          e.preventDefault();
+          const sessionId = e.currentTarget.getAttribute('session-id');
+          dialogsActions.openDialog(DIALOGS.SESSION, this.sessionsMap[sessionId]);
+        }
+      }
+
+      _getCloseBtnIcon(isLaptopViewport) {
+        return isLaptopViewport ? 'close' : 'arrow-left';
+      }
+    }
+
+    window.customElements.define(SpeakerDetails.is, SpeakerDetails);
+  </script>
+</dom-module>
+<link href="https://fonts.googleapis.com/css?family=Product+Sans:400&amp;lang=en" rel="stylesheet"></div></body></html>

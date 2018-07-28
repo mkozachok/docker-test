@@ -1,1 +1,198 @@
-<html><head></head><body><div hidden="" by-polymer-bundler=""><dom-module id="paper-tooltip" assetpath="../../bower_components/paper-tooltip/"><template><style>:host{display:block;position:absolute;outline:none;z-index:1002;-moz-user-select:none;-ms-user-select:none;-webkit-user-select:none;user-select:none;cursor:default;}#tooltip{display:block;outline:none;@apply (--paper-font-common-base);font-size:10px;line-height:1;background-color:var(--paper-tooltip-background, #616161);opacity:var(--paper-tooltip-opacity, 0.9);color:var(--paper-tooltip-text-color, white);padding:8px;border-radius:2px;@apply (--paper-tooltip);}.hidden{display:none !important;}</style><div id="tooltip" class="hidden"><content></content></div></template><script>Polymer({is:"paper-tooltip",hostAttributes:{role:"tooltip",tabindex:-1},behaviors:[Polymer.NeonAnimationRunnerBehavior],properties:{for:{type:String,observer:"_findTarget"},manualMode:{type:Boolean,value:!1,observer:"_manualModeChanged"},position:{type:String,value:"bottom"},fitToVisibleBounds:{type:Boolean,value:!1},offset:{type:Number,value:14},marginTop:{type:Number,value:14},animationDelay:{type:Number,value:500},animationConfig:{type:Object,value:function(){return{entry:[{name:"fade-in-animation",node:this,timing:{delay:0}}],exit:[{name:"fade-out-animation",node:this}]}}},_showing:{type:Boolean,value:!1}},listeners:{"neon-animation-finish":"_onAnimationFinish"},get target(){var t=Polymer.dom(this).parentNode,i=Polymer.dom(this).getOwnerRoot();return this.for?Polymer.dom(i).querySelector("#"+this.for):t.nodeType==Node.DOCUMENT_FRAGMENT_NODE?i.host:t},attached:function(){this._findTarget()},detached:function(){this.manualMode||this._removeListeners()},show:function(){if(!this._showing){if(""===Polymer.dom(this).textContent.trim()){for(var t=!0,i=Polymer.dom(this).getEffectiveChildNodes(),e=0;e<i.length;e++)if(""!==i[e].textContent.trim()){t=!1;break}if(t)return}this.cancelAnimation(),this._showing=!0,this.toggleClass("hidden",!1,this.$.tooltip),this.updatePosition(),this.animationConfig.entry[0].timing=this.animationConfig.entry[0].timing||{},this.animationConfig.entry[0].timing.delay=this.animationDelay,this._animationPlaying=!0,this.playAnimation("entry")}},hide:function(){if(this._showing){if(this._animationPlaying)return this.cancelAnimation(),this._showing=!1,void this._onAnimationFinish();this._showing=!1,this._animationPlaying=!0,this.playAnimation("exit")}},updatePosition:function(){if(this._target&&this.offsetParent){var t=this.offset;14!=this.marginTop&&14==this.offset&&(t=this.marginTop);var i,e,n=this.offsetParent.getBoundingClientRect(),s=this._target.getBoundingClientRect(),o=this.getBoundingClientRect(),h=(s.width-o.width)/2,a=(s.height-o.height)/2,r=s.left-n.left,l=s.top-n.top;switch(this.position){case"top":i=r+h,e=l-o.height-t;break;case"bottom":i=r+h,e=l+s.height+t;break;case"left":i=r-o.width-t,e=l+a;break;case"right":i=r+s.width+t,e=l+a}this.fitToVisibleBounds?(n.left+i+o.width>window.innerWidth?(this.style.right="0px",this.style.left="auto"):(this.style.left=Math.max(0,i)+"px",this.style.right="auto"),n.top+e+o.height>window.innerHeight?(this.style.bottom=n.height+"px",this.style.top="auto"):(this.style.top=Math.max(-n.top,e)+"px",this.style.bottom="auto")):(this.style.left=i+"px",this.style.top=e+"px")}},_addListeners:function(){this._target&&(this.listen(this._target,"mouseenter","show"),this.listen(this._target,"focus","show"),this.listen(this._target,"mouseleave","hide"),this.listen(this._target,"blur","hide"),this.listen(this._target,"tap","hide")),this.listen(this,"mouseenter","hide")},_findTarget:function(){this.manualMode||this._removeListeners(),this._target=this.target,this.manualMode||this._addListeners()},_manualModeChanged:function(){this.manualMode?this._removeListeners():this._addListeners()},_onAnimationFinish:function(){this._animationPlaying=!1,this._showing||this.toggleClass("hidden",!0,this.$.tooltip)},_removeListeners:function(){this._target&&(this.unlisten(this._target,"mouseenter","show"),this.unlisten(this._target,"focus","show"),this.unlisten(this._target,"mouseleave","hide"),this.unlisten(this._target,"blur","hide"),this.unlisten(this._target,"tap","hide")),this.unlisten(this,"mouseenter","hide")}});</script></dom-module><dom-module id="speaker-details" assetpath="../elements/"><template><style include="shared-styles dialog-styles"></style><paper-scroll-header-panel id="scrollHeaderPanel" condenses="{{app.isPhoneSize}}" no-reveal="{{!app.isPhoneSize}}"><paper-toolbar class="tall"><a href="/speakers"><paper-icon-button class="back-button" dialog-dismiss="" icon="arrow-back"></paper-icon-button></a><div class="middle fallback-image-wrapper" hidden$="{{app.isPhoneSize}}"><iron-image class="fallback-image" src="/images/logo-white.svg" alt="LvivJS Conference"></iron-image></div><div id="title" class="bottom title toolbar-title" hidden$="{{!app.isPhoneSize}}">[[speaker.name]]</div></paper-toolbar><div class="content"><div class="metadata-wrapper"><div class="main-info"><div class="photo" style$="background-image: url('[[speaker.photoUrl]]')" hidden$="{{app.isPhoneSize}}"></div><div class="info"><h1 class="main-title" hidden$="{{app.isPhoneSize}}">[[speaker.name]]</h1><div class="meta highlight">[[speaker.company]], [[speaker.country]]</div><div class="meta"><template is="dom-repeat" items="[[speaker.badges]]" as="badge"><a class="badge" href$="[[badge.link]]" target="_blank" rel="noopener noreferrer">[[badge.description]]</a></template></div></div></div></div><marked-element markdown="[[speaker.bio]]"><div class="markdown-html"></div></marked-element><div class="actions"><template is="dom-repeat" items="[[speaker.socials]]" as="social"><a href$="[[social.link]]" target="_blank" rel="noopener noreferrer"><paper-icon-button class="action" icon$="icons:{{social.icon}}"></paper-icon-button></a></template></div></div><template is="dom-if" if="{{speaker.sessions.length}}"><div class="sections-wrapper content"><h4 class="block-title"></h4><div class="sections"><template is="dom-repeat" items="[[speaker.sessions]]" as="session"><div class="section"><div class="section-info"><h3 class="section-title">[[session.title]]</h3><div class="badges"><template is="dom-repeat" items="[[session.tags]]" as="tag"><span class="badge" target="_blank" rel="noopener noreferrer">[[tag]]</span></template></div><truncate-marked-text text="[[session.description]]" characters="220" break-last-word=""></truncate-marked-text><a class="read-more" hidden$="{{!session.day}}" href$="/schedule/day[[session.day]]?sessionId=[[session.id]]" dialog-dismiss="">Read more</a></div></div></template></div></div></template></paper-scroll-header-panel></template><script>!function(){"use strict";Polymer({is:"speaker-details",behaviors:[Polymer.PaperDialogBehavior,Polymer.NeonAnimationRunnerBehavior,HOVERBOARD.UtilsBehavior],properties:{speaker:{type:Object,observer:"_speakerChanged",notify:!0}},listeners:{"neon-animation-finish":"_onNeonAnimationFinish"},ready:function(){var n=this.$.title;addEventListener("paper-header-transform",function(e){var t=e.detail,i=t.height-t.condensedHeight,o=40*(1<t.y/i?1:t.y/i);Polymer.Base.translate3d(o+"px",0,0,n)})},_speakerChanged:function(){var e=this._generateClass(this.speaker.tags[0]);this.customStyle["--paper-scroll-header-panel-color"]="var(--"+e+")",this._previousBrowserColor=HOVERBOARD.Util.getMetaThemeColor(),HOVERBOARD.Util.setMetaThemeColor(this.getComputedStyleValue("--"+e)),this.app.isPhoneSize&&(this.$.scrollHeaderPanel.$.headerBg.style.background="linear-gradient(to top, rgba(0, 0, 0, 0.4) -10%, rgba(0, 0, 0, 0.1) 50%), url("+this.speaker.photoUrl+") 0 / cover no-repeat"),this.updateStyles()},_renderOpened:function(){this.withBackdrop&&!this.app.isPhoneSize&&this.backdropElement.open(),this.playAnimation("entry"),this.async(function(){this.$.scrollHeaderPanel.scroll(1,!0),this.$.scrollHeaderPanel.notifyResize()}),HOVERBOARD.Analytics.trackEvent("speaker","open details",this.speaker.name)},_renderClosed:function(){HOVERBOARD.Util.setMetaThemeColor(this._previousBrowserColor),this.backdropElement.close(),this.playAnimation("exit")},_onNeonAnimationFinish:function(){this.opened?(document.body.style.overflow="hidden",this._finishRenderOpened()):(document.body.style.overflow="",this._finishRenderClosed())}})}();</script></dom-module></div><dom-module id="speakers-page"><template><style include="shared-styles">:host{display:block;--grid-gutter:8px;--colums-number:3;--general:#bdbdbd;}.speakers-container{@apply (--layout-vertical);@apply (--layout-wrap);}.speaker{@apply (--layout-horizontal);width:100%;margin:var(--grid-gutter) 0;}.card{@apply (--layout-flex);@apply (--layout-vertical);background:#FFFFFF;color:var(--primary-text-color);}.card-content{@apply (--layout-vertical);@apply (--layout-flex-auto);padding:16px;font-size:18px;cursor:pointer;}.bio{color:var(--primary-text-color);}.card-actions{border-top:1px solid #e8e8e8;padding:5px 16px;position:relative;}.header{position:relative;height:256px;}.photo{@apply (--layout-fit);}.photo-overlay{@apply (--layout-fit);background:linear-gradient(to top, rgba(0, 0, 0, 0.5) 4%, rgba(0, 0, 0, 0) 50%);}.badges{margin:0;padding:16px;position:relative;list-style:none;text-align:right;}.badge{display:inline-block;}.badge:not(:last-of-type):after{color:rgba(255, 255, 255, 0.8);vertical-align:middle;font-size:14px;content:"\2022";}.badge a{color:#FFFFFF;font-size:14px;font-weight:500;}.bottom-image-text{padding:16px;position:absolute;bottom:0;color:#FFFFFF;}.name{font-size:24px;}.title{margin-top:-5px;display:block;font-size:14px;}.social-icon{color:var(--secondary-text-color);}@media (min-width: 601px){.speakers-container{@apply (--layout-horizontal);}.speaker{width:calc(100% / 2 - 2 * var(--grid-gutter));margin:var(--grid-gutter);}}@media (min-width: 961px){.speaker{width:calc(100% / 3 - 2 * var(--grid-gutter));}}.tags{font-size:14px;color:var(--primary-text-color);}.tag{margin:2px 0 0 2px;padding:1px 4px;color:#fff;display:inline-block;font-size:12px;border-radius:2px;background:var(--general);}.markdown-html{font-size:16px;}.company-logo{margin:0 auto 10px;width:110px;height:25px;}speaker-details{min-height:300px;}</style><app-route route="{{route}}" pattern="/:speakerId" data="{{routeData}}"></app-route><div class="container speakers-container"><template is="dom-repeat" items="[[_toArray(speakers)]]" as="speaker" on-dom-change="updateCascadedNodes"><div class="speaker" cascaded=""><paper-material class="card"><a href$="/speakers/[[speaker.id]]/" class="header"><iron-image src="[[speaker.photoUrl]]" class="photo placeholder-color" preload="" fade="" sizing="cover"></iron-image><div class="photo-overlay"></div><ul class="badges"><template is="dom-repeat" items="[[speaker.badges]]" as="badge"><li class="badge"><a href$="[[badge.link]]" target="_blank" rel="noopener noreferrer">[[badge.name]]</a><paper-tooltip>[[badge.description]]</paper-tooltip></li></template></ul><div class="bottom-image-text"><span class="name">[[speaker.name]]</span><span class="title">[[speaker.country]]</span></div></a><a href$="/speakers/[[speaker.id]]/" class="card-content"><iron-image class="company-logo" src="{{speaker.companyLogo}}" sizing="contain"></iron-image><div class="tags">Skills:<template is="dom-repeat" items="[[speaker.tags]]" as="tag"><span class="tag" style$="{{_getCustomStyleValue(tag)}}">[[tag]]</span></template></div><marked-element class="details-text" markdown="[[speaker.shortBio]]"><div class="markdown-html"></div></marked-element></a><div class="card-actions"><template is="dom-repeat" items="[[speaker.socials]]" as="social"><a href="[[social.link]]" target="_blank" rel="noopener noreferrer"><paper-icon-button class="social-icon" icon$="icons:{{social.icon}}"></paper-icon-button></a></template></div></paper-material></div></template></div><footer-block app="{{app}}" cascaded=""></footer-block><speaker-details id="speakerDetails" app="{{app}}" speaker="{{_selectedSpeaker}}" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop=""></speaker-details></template><script>!function(){"use strict";Polymer({is:"speakers-page",behaviors:[HOVERBOARD.PageBehavior,HOVERBOARD.CascadedBehavior,HOVERBOARD.UtilsBehavior],properties:{route:{type:Object,notify:!0},routeData:{type:Object},speakerRouteData:{type:Object},speakers:{type:Object},_selectedSpeaker:Object},observers:["_routePageChanged(routeData.speakerId, speakers)"],listeners:{"iron-overlay-closed":"_resetSpeakerIdParam"},_routePageChanged:function(e){if(e&&this.selected){var t=this._findSpeakerById(e);t&&window.requestAnimationFrame(function(){this._selectedSpeaker=t,this.$.speakerDetails.open()}.bind(this))}},_findSpeakerById:function(t){if(this.speakers.filter)return this.speakers.filter(function(e){return e.id===+t})[0]},_getCustomStyleValue:function(e){return"background-color: "+this.getComputedStyleValue("--"+this._generateClass(e))||this.getComputedStyleValue("--general")},_resetSpeakerIdParam:function(){this.set("routeData.speakerId",null)}})}();</script></dom-module></body></html>
+<html><head></head><body><div hidden="" by-polymer-bundler=""><dom-module id="previous-speakers-block" assetpath="../elements/">
+  <template>
+    <style is="custom-style" include="shared-styles flex flex-alignment positioning"></style>
+
+    <style>:host{margin:32px auto;display:block;text-align:center;}.speakers-wrapper{margin:40px -8px 32px;position:relative;display:flex;flex-wrap:wrap;overflow:hidden;justify-content:center;}.speaker{margin:8px;}.photo{width:64px;height:64px;background-color:var(--contrast-additional-background-color);border-radius:50%;overflow:hidden;transform:translateZ(0);}@media (min-width: 640px){.speakers-wrapper{margin-right:-12px;margin-left:-12px;}.speaker{margin:12px;}.photo{width:96px;height:96px;}}</style>
+
+    <div class="container">
+      <h1 class="container-title">Previous speakers</h1>
+
+      <div class="speakers-wrapper">
+        <template is="dom-repeat" items="[[speakers]]" as="speaker">
+          <a class="speaker" href$="/previous-speakers/[[speaker.id]]" ga-on="click" ga-event-category="previous speaker" ga-event-action="open details" ga-event-label$="[[speaker.name]]">
+            <plastic-image class="photo" srcset="[[speaker.photoUrl]]" sizing="cover" lazy-load="" preload="" fade=""></plastic-image>
+          </a>
+        </template>
+      </div>
+
+      <a href="/previous-speakers/">
+        <paper-button class="animated icon-right">
+          <span>View all</span>
+          <iron-icon icon="hoverboard:arrow-right-circle"></iron-icon>
+        </paper-button>
+      </a>
+
+    </div>
+
+  </template>
+
+  <script>
+
+    // eslint-disable-next-line no-undef
+    class PreviousSpeakersBlock extends UtilsFunctions(ReduxMixin(Polymer.Element)) {
+      static get is() {
+        return 'previous-speakers-block';
+      }
+
+      static get properties() {
+        return {
+          speakersRaw: {
+            type: Array,
+            statePath: 'previousSpeakers.list',
+            observer: '_generateSpeakers',
+          },
+          speakersFetching: {
+            type: Boolean,
+            statePath: 'previousSpeakers.fetching',
+          },
+          speakersFetchingError: {
+            type: Object,
+            statePath: 'previousSpeakers.fetchingError',
+          },
+          viewport: {
+            type: Object,
+            statePath: 'ui.viewport',
+          },
+        };
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+        if (!this.speakersFetching && (!this.speakers || !this.speakers.length)) {
+          this.dispatch(previousSpeakersActions.fetchList());
+        }
+      }
+
+      _generateSpeakers(speakersRaw) {
+        this.set('speakers', this.randomOrder(speakersRaw).slice(0, this.viewport.isPhone ? 8 : 14));
+      }
+    }
+
+    window.customElements.define(PreviousSpeakersBlock.is, PreviousSpeakersBlock);
+  </script>
+</dom-module>
+</div><dom-module id="speakers-page">
+  <template>
+    <style is="custom-style" include="shared-styles flex flex-alignment positioning"></style>
+
+    <style>:host{display:block;height:100%;}.container{display:grid;grid-template-columns:1fr;grid-gap:16px;min-height:80%;}.speaker{padding:32px 24px;background:var(--primary-background-color);text-align:center;transition:box-shadow var(--animation);}.speaker:hover{box-shadow:var(--box-shadow);}.photo{width:128px;height:128px;background-color:var(--secondary-background-color);border-radius:50%;overflow:hidden;transform:translateZ(0);}.badges{position:absolute;top:0;left:calc(50% + 32px);}.badge{margin-left:-10px;width:24px;height:24px;border-radius:50%;border:2px solid #fff;transition:transform var(--animation);}.badge:hover{transform:scale(1.1);}.badge:nth-of-type(2){transform:translate(25%, 75%);}.badge:nth-of-type(2):hover{transform:translate3d(25%, 75%, 20px) scale(1.1);}.badge-icon{--iron-icon-width:12px;--iron-icon-height:12px;color:#fff;}.company-logo{width:100%;height:16px;}.description{color:var(--primary-text-color);}.name{margin-top:8px;line-height:1;}.origin{margin-top:4px;font-size:14px;line-height:1.1;}.bio{margin-top:16px;color:var(--secondary-text-color);}.contacts{margin-top:16px;}.social-icon{--paper-icon-button:{padding:6px;width:32px;height:32px;};color:var(--secondary-text-color);}paper-progress{width:100%;--paper-progress-active-color:var(--default-primary-color);--paper-progress-secondary-color:var(--default-primary-color);}@media (min-width: 640px){.container{grid-template-columns:repeat(2, 1fr);}}@media (min-width: 812px){.container{grid-template-columns:repeat(3, 1fr);}}@media (min-width: 1024px){.container{grid-template-columns:repeat(4, 1fr);}}</style>
+
+    <polymer-helmet title="Speakers | LvivJS 2018" description="Learn more about speakers" active="[[_setHelmetData(active, isDialogOpened)]]"></polymer-helmet>
+
+    <app-route route="[[route]]" pattern="/:speakerId" data="{{routeData}}"></app-route>
+
+    <hero-block background-image="" background-color="#000" font-color="#ffcc39" active="[[active]]">
+      <div class="hero-title highlight-font">Speakers</div>
+      
+    </hero-block>
+
+    <paper-progress indeterminate="" hidden$="[[contentLoaderVisibility]]"></paper-progress>
+
+    <content-loader class="container" card-padding="32px" card-height="400px" avatar-size="128px" avatar-circle="64px" horizontal-position="50%" box-shadow="var(--box-shadow)" items-count="4" hidden$="[[contentLoaderVisibility]]"></content-loader>
+
+    <div class="container">
+      <template is="dom-repeat" items="[[speakers]]" as="speaker">
+        <a class="speaker card" href$="/speakers/[[speaker.id]]/" ga-on="click" ga-event-category="speaker" ga-event-action="open details" ga-event-label$="[[speaker.name]]">
+          <div relative="">
+            <plastic-image class="photo" srcset="[[speaker.photoUrl]]" sizing="cover" lazy-load="" preload="" fade=""></plastic-image>
+            
+          </div>
+
+          <plastic-image class="company-logo" srcset="[[speaker.companyLogoUrl]]" sizing="contain" lazy-load="" preload="" fade=""></plastic-image>
+
+          <div class="description">
+            <h2 class="name">[[speaker.name]]</h2>
+            <div class="origin">[[speaker.country]]</div>
+
+            <text-truncate lines="5">
+              <div class="bio">[[speaker.shortBio]]</div>
+            </text-truncate>
+            <text-truncate lines="5">
+              <h4 class="name">Topic:<br><br><i>[[speaker.title]]</i></h4>
+            </text-truncate>
+          </div>
+
+          <div class="contacts">
+            <template is="dom-repeat" items="[[speaker.socials]]" as="social">
+              <a href$="[[social.link]]" target="_blank" rel="noopener noreferrer">
+                <paper-icon-button class="social-icon" icon="hoverboard:{{social.icon}}"></paper-icon-button>
+              </a>
+            </template>
+          </div>
+
+        </a>
+      </template>
+    </div>
+
+    
+
+  </template>
+
+  <script>
+
+    // eslint-disable-next-line no-undef
+    class SpeakersPage extends UtilsFunctions(ReduxMixin(SpeakersHoC(Polymer.Element))) {
+      static get is() {
+        return 'speakers-page';
+      }
+
+      static get properties() {
+        return {
+          route: Object,
+          routeData: Object,
+          active: Boolean,
+          isDialogOpened: {
+            type: Object,
+            statePath: 'dialogs.speaker.isOpened',
+            observer: '_dialogStatusChanged',
+          },
+          contentLoaderVisibility: {
+            type: String,
+            value: null,
+          },
+        };
+      }
+
+      static get observers() {
+        return [
+          '_openSpeakerDetails(active, speakers, speakersMap, routeData.speakerId)',
+          '_speakersChanged(speakers)',
+        ];
+      }
+
+      _speakersChanged() {
+        if (this.speakers && this.speakers.length) {
+          this.contentLoaderVisibility = 'hidden';
+        }
+      }
+
+      _dialogStatusChanged(nextState, prevState) {
+        if (!nextState && prevState && this.active && this.routeData.speakerId) {
+          history.back();
+        }
+      }
+
+      _openSpeakerDetails(active, speakers, speakersMap, id) {
+        if (speakers && speakers.length) {
+          requestAnimationFrame(() => {
+            if (active && id) {
+              const speakerData = speakersMap[id];
+              speakerData && dialogsActions.openDialog(DIALOGS.SPEAKER, speakerData);
+            } else if (this.isDialogOpened) {
+              dialogsActions.closeDialog(DIALOGS.SPEAKER);
+            }
+          });
+        }
+      }
+
+      _setHelmetData(active, isDialogOpened) {
+        return active && !isDialogOpened;
+      }
+    }
+
+    window.customElements.define(SpeakersPage.is, SpeakersPage);
+
+  </script>
+</dom-module>
+
+</body></html>
