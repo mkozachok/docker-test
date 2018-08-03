@@ -15,7 +15,6 @@
   <link rel="icon" href="images/favicon.png">
 
   <meta name="theme-color" content="#F57C00">
-  <link rel="manifest" href="manifest.json">
 
   
   <meta name="mobile-web-app-capable" content="yes">
@@ -124,6 +123,12 @@
         console.log('Firebase App is ready!');
       })
       .then(() => loadHoverboardApp());
+
+      navigator.serviceWorker.getRegistrations().then(function(registrations) {
+        for(var registration of registrations) {
+          registration.unregister()
+        }
+      });
 
   </script>
 
