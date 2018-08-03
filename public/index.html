@@ -123,13 +123,6 @@
         console.log('Firebase App is ready!');
       })
       .then(() => loadHoverboardApp());
-
-      navigator.serviceWorker && navigator.serviceWorker.getRegistrations().then(function(registrations) {
-        for(var registration of registrations) {
-          registration.unregister()
-        }
-      });
-
   </script>
 
   <script src="bower_components/webcomponentsjs/webcomponents-loader.js?1"></script>
