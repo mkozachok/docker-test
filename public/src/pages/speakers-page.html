@@ -113,6 +113,10 @@
           </div>
 
           <div class="contacts">
+            <text-truncate lines="5">
+              <h4 class="name">Complexity: [[speaker.complexity]]</h4>
+            </text-truncate>
+            <br>
             <template is="dom-repeat" items="[[speaker.socials]]" as="social">
               <a href$="[[social.link]]" target="_blank" rel="noopener noreferrer">
                 <paper-icon-button class="social-icon" icon="hoverboard:{{social.icon}}"></paper-icon-button>
