@@ -361,33 +361,32 @@
   <template>
     <style is="custom-style" include="shared-styles flex flex-alignment"></style>
 
-    <style>:host{display:block;}.block-title{margin:24px 0 8px;color:var(--default-primary-color);}.logos-wrapper{display:grid;grid-template-columns:repeat(auto-fill, minmax(150px, 1fr));grid-gap:8px;}.logo-item{padding:24px;}.logo-img{height:60px;width:100%;}.cta-button{margin-top:24px;color:var(--default-primary-color);}@media (min-width: 640px){.logos-wrapper{grid-template-columns:repeat(4, 1fr);}}@media (min-width: 812px){.logos-wrapper{grid-template-columns:repeat(5, 1fr);}}</style>
+    <style>:host{display:block;}.block-title{margin:24px 0 8px;}.logos-wrapper{display:grid;grid-template-columns:repeat(auto-fill, minmax(150px, 1fr));grid-gap:8px;}.logo-item{padding:24px;}.logo-img{height:60px;width:100%;}.cta-button{margin-top:24px;color:var(--default-primary-color);}@media (min-width: 640px){.logos-wrapper{grid-template-columns:repeat(4, 1fr);}}@media (min-width: 812px){.logos-wrapper{grid-template-columns:repeat(5, 1fr);}}</style>
 
     <div class="container">
       <h1 class="container-title">Partners</h1>
 
       <template is="dom-repeat" items="[[partners]]" as="block">
-        <h2 class="block-title">[[block.title]]</h2>
-        <div class="logos-wrapper">
-          <template is="dom-repeat" items="[[block.items]]" as="logo">
-            <a class="logo-item card" href$="[[logo.url]]" title$="[[logo.name]]" target="_blank" rel="noopener noreferrer" layout="" horizontal="" center-center="">
-              <plastic-image class="logo-img" srcset="[[logo.logoUrl]]" sizing="contain" lazy-load="" preload="" fade=""></plastic-image>
-            </a>
-          </template>
-        </div>
+          <h4 class="block-title">[[block.title]]</h4>
+          <div class="logos-wrapper">
+            <template is="dom-repeat" items="[[block.items]]" as="logo">
+              <a class="logo-item card" href$="[[logo.url]]" title$="[[logo.name]]" target="_blank" rel="noopener noreferrer" layout="" horizontal="" center-center="">
+                <plastic-image class="logo-img" srcset="[[logo.logoUrl]]" sizing="contain" lazy-load="" preload="" fade=""></plastic-image>
+              </a>
+            </template>
+          </div>
       </template>
 
-      <a href="mailto:lvivjsconference@gmail.com">
-        <paper-button class="cta-button animated icon-right">
-          <span>Become a partner</span>
-          <iron-icon icon="hoverboard:arrow-right-circle"></iron-icon>
-        </paper-button>
-      </a>
+      <paper-button class="cta-button animated icon-right" on-tap="_addPotentialPartner">
+        <span>Become a partner</span>
+        <iron-icon icon="hoverboard:arrow-right-circle"></iron-icon>
+      </paper-button>
     </div>
 
   </template>
 
   <script>
+
     class PartnersBlock extends ReduxMixin(Polymer.Element) {
       static get is() {
         return 'partners-block';
@@ -444,16 +443,13 @@
             this.dispatch(dialogsActions.setDialogError(DIALOGS.SUBSCRIBE));
           } else {
             dialogsActions.closeDialog(DIALOGS.SUBSCRIBE);
-            toastActions.showToast({
-              message: 'We will contact you soon!',
-            });
+            toastActions.showToast({ message: 'We will contact you soon!' });
           }
         }
       }
     }
 
     window.customElements.define(PartnersBlock.is, PartnersBlock);
-
   </script>
 </dom-module>
 <dom-module id="featured-videos" assetpath="../elements/">
@@ -1038,7 +1034,7 @@
   <template>
     <style is="custom-style" include="shared-styles flex flex-alignment"></style>
 
-    <style>:host{display:block;height:100%;}hero-block{font-size:24px;text-align:center;}.hero-logo{--iron-image-width:100%;max-width:300px;padding-left:50px;}.info-items{margin:24px auto;font-size:22px;}.info-items>*:not(:first-of-type){margin-top:4px;}.action-buttons{margin:0 -8px;font-size:14px;}.action-buttons paper-button{margin:8px;color:#fff;}.action-buttons iron-icon{--iron-icon-fill-color:currentColor;margin-right:8px;}.scroll-down{margin-top:24px;color:currentColor;user-select:none;cursor:pointer;}.scroll-down svg{width:24px;opacity:0.6;}.scroll-down .stroke{stroke:currentColor;}.scroll-down .scroller{fill:currentColor;animation:updown 2s infinite;}@keyframes updown{0%{transform:translate(0, 0);}50%{transform:translate(0, 5px);}100%{transform:translate(0, 0);}}@media (min-height: 500px){hero-block{height:calc(100% + 57px);max-height:calc(100vh + 1px);}.home-content{margin-top:-48px;}.scroll-down{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);z-index:2;}}@media (min-width: 812px){hero-block{height:calc(100% + 65px);}.hero-logo{max-width:380px;}.info-items{margin:48px auto;font-size:28px;line-height:1.1;}}</style>
+    <style>:host{display:block;height:100%;}hero-block{font-size:24px;text-align:center;}.hero-logo{--iron-image-width:100%;max-width:300px;padding-left:50px;}.info-items{margin:24px auto;font-size:22px;}.info-items > *:not(:first-of-type){margin-top:4px;}.action-buttons{margin:0 -8px;font-size:14px;}.action-buttons paper-button{margin:8px;color:#fff;}.action-buttons iron-icon{--iron-icon-fill-color:currentColor;margin-right:8px;}.scroll-down{margin-top:24px;color:currentColor;user-select:none;cursor:pointer;}.scroll-down svg{width:24px;opacity:0.6;}.scroll-down .stroke{stroke:currentColor;}.scroll-down .scroller{fill:currentColor;animation:updown 2s infinite;}@keyframes updown{0%{transform:translate(0, 0);}50%{transform:translate(0, 5px);}100%{transform:translate(0, 0);}}@media (min-height: 500px){hero-block{height:calc(100% + 57px);max-height:calc(100vh + 1px);}.home-content{margin-top:-48px;}.scroll-down{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);z-index:2;}}@media (min-width: 812px){hero-block{height:calc(100% + 65px);}.hero-logo{max-width:380px;}.info-items{margin:48px auto;font-size:28px;line-height:1.1;}}</style>
 
     <polymer-helmet active="[[active]]"></polymer-helmet>
 
@@ -1057,9 +1053,9 @@
 
         <div class="scroll-down" on-tap="_scrollNextBlock">
           <svg xmlns="http://www.w3.org/2000/svg" version="1.1" id="Layer_2" x="0px" y="0px" viewBox="0 0 25.166666 37.8704414" enable-background="new 0 0 25.166666 37.8704414" xml:space="preserve">
-            <path class="stroke" fill="none" stroke="#c7c4b8" stroke-width="2.5" stroke-miterlimit="10" d="M12.5833445 36.6204414h-0.0000229C6.3499947 36.6204414 1.25 31.5204487 1.25 25.2871208V12.5833216C1.25 6.3499947 6.3499951 1.25 12.5833216 1.25h0.0000229c6.2333269 0 11.3333216 5.0999947 11.3333216 11.3333216v12.7037992C23.916666 31.5204487 18.8166714 36.6204414 12.5833445 36.6204414z"></path>
-            <path class="scroller" fill="#c7c4b8" d="M13.0833359 19.2157116h-0.9192753c-1.0999985 0-1.9999971-0.8999996-1.9999971-1.9999981v-5.428606c0-1.0999994 0.8999987-1.9999981 1.9999971-1.9999981h0.9192753c1.0999985 0 1.9999981 0.8999987 1.9999981 1.9999981v5.428606C15.083334 18.315712 14.1833344 19.2157116 13.0833359 19.2157116z"></path>
-          </svg>
+        <path class="stroke" fill="none" stroke="#c7c4b8" stroke-width="2.5" stroke-miterlimit="10" d="M12.5833445 36.6204414h-0.0000229C6.3499947 36.6204414 1.25 31.5204487 1.25 25.2871208V12.5833216C1.25 6.3499947 6.3499951 1.25 12.5833216 1.25h0.0000229c6.2333269 0 11.3333216 5.0999947 11.3333216 11.3333216v12.7037992C23.916666 31.5204487 18.8166714 36.6204414 12.5833445 36.6204414z"></path>
+        <path class="scroller" fill="#c7c4b8" d="M13.0833359 19.2157116h-0.9192753c-1.0999985 0-1.9999971-0.8999996-1.9999971-1.9999981v-5.428606c0-1.0999994 0.8999987-1.9999981 1.9999971-1.9999981h0.9192753c1.0999985 0 1.9999981 0.8999987 1.9999981 1.9999981v5.428606C15.083334 18.315712 14.1833344 19.2157116 13.0833359 19.2157116z"></path>
+    </svg>
           <i class="icon icon-arrow-down"></i>
         </div>
       </div>
@@ -1070,11 +1066,11 @@
     <gallery-block></gallery-block>
     
     <map-block></map-block>
-    <partners-block></partners-block>
     
   </template>
 
   <script>
+
     // eslint-disable-next-line no-undef
     class HomePage extends ScrollFunctions(ReduxMixin(Polymer.Element)) {
       static get is() {
@@ -1104,8 +1100,8 @@
         // eslint-disable-next-line no-undef
         const toolbarHeight = HOVERBOARD.Elements.HeaderToolbar.getBoundingClientRect().height - 1;
         // eslint-disable-next-line no-undef
-        const ticketsBlockPositionY = HOVERBOARD.Elements.Tickets.getBoundingClientRect().top -
-          toolbarHeight;
+        const ticketsBlockPositionY = HOVERBOARD.Elements.Tickets.getBoundingClientRect().top
+          - toolbarHeight;
         this.scrollToY(ticketsBlockPositionY, 600, 'easeInOutSine');
       }
 
@@ -1119,4 +1115,5 @@
 
   </script>
 </dom-module>
+
 </body></html>
