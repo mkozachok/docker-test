@@ -223,7 +223,7 @@
       .session-content,
       .session-footer{padding:16px;z-index:1;}.session-header{padding-bottom:8px;}.language{margin-left:8px;font-size:12px;text-transform:uppercase;color:var(--secondary-text-color);}.session-content{padding-top:0;padding-bottom:40px;}.bookmark-session{color:var(--secondary-text-color);}.session[featured] .bookmark-session{color:var(--default-primary-color);}.bookmark-session:hover{color:var(--default-primary-color);}.session-title{font-size:20px;line-height:1.2;}.session-meta{margin:0;padding:0;font-size:12px;color:var(--secondary-text-color);}.session-footer{font-size:14px;}.speakers{margin-top:10px;}.speaker:not(:last-of-type){padding-bottom:10px;}.speaker-photo{margin-right:12px;width:32px;height:32px;background-color:var(--secondary-background-color);border-radius:50%;overflow:hidden;transform:translateZ(0);}.speaker-name{margin-bottom:4px;line-height:1.2;}.speaker-title{font-size:12px;line-height:1;}@media (min-width: 640px){:host{border:1px solid var(--border-light-color);border-top:0;}}@media (min-width: 812px){:host{border:1px solid var(--border-light-color);}}</style>
 
-    <a class="session" href$="/schedule/[[dayName]]?sessionId=[[session.id]]" featured$="[[isFeatured]]" layout="" vertical="" relative="">
+    <a class="session" featured$="[[isFeatured]]" layout="" vertical="" relative="">
       <iron-icon class="session-icon" icon="hoverboard:[[session.icon]]"></iron-icon>
 
       <div class="session-header" layout="" horizontal="" justified="">
